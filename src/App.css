@@ -1,0 +1,60 @@
+/* Container for the whole page */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* The Grid Layout */
+.movie-grid {
+  display: grid;
+  /* This creates a responsive grid that fits as many 250px cards as possible */
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 30px; /* Space between cards */
+  justify-items: center; /* Centers cards if the row isn't full */
+  margin-top: 20px;
+}
+
+/* The Individual Card */
+.movie-card {
+  width: 250px;
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.movie-card:hover {
+  transform: translateY(-5px);
+}
+
+/* Fix for the Movie Poster Size */
+.poster-wrapper {
+  width: 100%;
+  height: 350px; /* Fixed height for all posters */
+  overflow: hidden;
+}
+
+.movie-poster {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* This is the "magic" - it crops images to fit exactly without stretching */
+  display: block;
+}
+
+/* Card Content Spacing */
+.movie-card-content {
+  padding: 15px;
+  text-align: center;
+  flex-grow: 1;
+}
+
+.movie-card-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  padding: 10px 15px 15px;
+}
