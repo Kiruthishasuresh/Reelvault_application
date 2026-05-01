@@ -1,49 +1,41 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { BrowserRouter as Router, Routes, Route, Link, useLocation } from "react-router-dom";
+import React from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider, useAuth } from "./context/AuthContext";
+import { MovieProvider } from "./context/MovieContext";
 import HomePage from "./pages/HomePage";
-import AddMovie from "./pages/AddMovie";
+import AuthPage from "./pages/AuthPage";
 
-function Navbar() {
-  const location = useLocation();
-  return (
-    <nav className="navbar">
-      <h1 className="logo">🎬 Movie-Watchlist App</h1>
-      <div className="nav-links">
-        <Link className={location.pathname === "/" ? "active-link" : ""} to="/">Home</Link>
-        <Link className={location.pathname === "/add" ? "active-link" : ""} to="/add">Add Movie</Link>
-      </div>
-    </nav>
-  );
-}
+// Protected route wrapper
+const ProtectedRoute = ({ children }) => {
+  const { isAuthenticated, loading } = useAuth();
+  if (loading) return <div className="loading-container"><div className="spinner" /></div>;
+  return isAuthenticated ? children : <Navigate to="/login" replace />;
+};
+
+// Public route (redirect to home if already logged in)
+const PublicRoute = ({ children }) => {
+  const { isAuthenticated, loading } = useAuth();
+  if (loading) return <div className="loading-container"><div className="spinner" /></div>;
+  return isAuthenticated ? <Navigate to="/" replace /> : children;
+};
 
 function App() {
-  const [movies, setMovies] = useState([]);
-
-  // Fetch movies from backend
-  useEffect(() => {
-    axios.get("http://localhost:5000/api/movies")
-      .then(res => setMovies(res.data))
-      .catch(err => console.error("Error fetching movies:", err));
-  }, []);
-
-  const handleAddMovie = async (movie) => {
-    try {
-      const res = await axios.post("http://localhost:5000/api/movies", movie);
-      setMovies([res.data, ...movies]);
-    } catch (err) {
-      console.error("Error adding movie:", err);
-    }
-  };
-
   return (
-    <Router>
-      <Navbar />
-      <Routes>
-        <Route path="/" element={<HomePage movies={movies} setMovies={setMovies} />} />
-        <Route path="/add" element={<AddMovie onAdd={handleAddMovie} />} />
-      </Routes>
-    </Router>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/login" element={<PublicRoute><AuthPage /></PublicRoute>} />
+          <Route path="/" element={
+            <ProtectedRoute>
+              <MovieProvider>
+                <HomePage />
+              </MovieProvider>
+            </ProtectedRoute>
+          } />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 
